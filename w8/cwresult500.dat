@@ -1,7 +1,9 @@
 Waf: Entering directory `/root/ns-allinone-3.29/ns-3.29/build'
+[2564/2623] Compiling scratch/week6_skeleton/week6_skeleton.cc
+[2583/2623] Linking build/scratch/week6_skeleton/week6_skeleton
 Waf: Leaving directory `/root/ns-allinone-3.29/ns-3.29/build'
 Build commands will be stored in build/compile_commands.json
-'build' finished successfully (4.749s)
+'build' finished successfully (7.134s)
 5.00986	536
 5.24651	1072
 5.26954	1608
