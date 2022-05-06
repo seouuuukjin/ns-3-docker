@@ -5,31 +5,33 @@
 #include "ns3/internet-module.h"
 #include "ns3/bridge-module.h"
 #include "ns3/csma-module.h"
-#include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("week11");
+// NS_LOG_COMPONENT_DEFINE ("week11");
 
 static void
 Rxtime (std::string context, Ptr<const Packet> p, const Address &a){
+
     static double bytes1, bytes2 = 0;
+
     if (context == "Flow1"){
         bytes1 += p->GetSize();
-        NS_LOG_UNCOND("1\t" << Simulator::Now().GetSeconds() << "\t" << bytes1 * 8 / 1000000 / (Simultor::Now().GetSeconds()-1));
+        NS_LOG_UNCOND("1\t" << Simulator::Now().GetSeconds()
+             << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1));
     }
     else if(context == "Flow2"){
-        bytes2 += p->Getsize();
-        NS_LOG_UNCOND("2\t" << Simulator::Now().GetSeconds() << "\t" << bytes1 * 8 / 1000000 / (Simultor::Now().GetSeconds()-3));
-
+        bytes2 += p->GetSize();
+        NS_LOG_UNCOND("2\t" << Simulator::Now().GetSeconds()
+             << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-3));
     }
 }
 
 int 
 main (int argc, char *argv[])
 {
-  LogComponentEnable("week11", LOG_LEVEL_ALL);
+//   LogComponentEnable("week11", LOG_LEVEL_ALL);
 
   CommandLine cmd;
   cmd.Parse(argc,argv);
@@ -43,8 +45,8 @@ main (int argc, char *argv[])
   Ptr<Node> node3 = CreateObject<Node> ();
   NodeContainer nodes = NodeContainer (node0, node1, node2, node3);
 
-  NodeContainer node0to1 = NodeContainer(node0, node1);
-  NodeContainer node2to3 = NodeContainer(node2, node3);
+//   NodeContainer node0to1 = NodeContainer(node0, node1);
+//   NodeContainer node2to3 = NodeContainer(node2, node3);
 
   // Node container for Switch
   NodeContainer csmaSwitch;
@@ -55,9 +57,6 @@ main (int argc, char *argv[])
   csma.SetChannelAttribute("DataRate", StringValue("5Mbps"));
   csma.SetChannelAttribute("Delay", TimeValue(MicroSeconds(10)));
 
-  // option : Enable Pcap tracing
-  csma.EnablePcapAll("week11", false);
-
   // Create net divice
   NetDeviceContainer csmaHostDevices;
   NetDeviceContainer switchDevices;
@@ -66,7 +65,7 @@ main (int argc, char *argv[])
   for(int i=0; i<4; i++){
       NetDeviceContainer link = csma.Install(NodeContainer(nodes.Get(i), csmaSwitch));
       csmaHostDevices.Add(link.Get(0));
-      csmaHostDevices.Add(link.Get(1));
+      switchDevices.Add(link.Get(1));
   }
   
   Ptr<Node> switchNode = csmaSwitch.Get(0);
@@ -82,23 +81,23 @@ main (int argc, char *argv[])
   NS_LOG_INFO ("Assign IP Addresses.");
   Ipv4AddressHelper ipv4;
   ipv4.SetBase ("10.1.1.0", "255.255.255.0");
-  ipv4.Assign (nodes);
-
-  // Set up the routing tables
-  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+  ipv4.Assign (csmaHostDevices);
 
   uint16_t port = 9;
-  OnOffHelper onoff("ns3::TcpSocketFactory", Address(InetSocketAddress(Ipv4Address("10.1.1.2"), port)));
-  onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]"));
-  onoff.SetAttribute("OffTime",	StringValue("ns3::ConstantRandomVariable[Constant=1.0]"));
+  OnOffHelper onoff("ns3::TcpSocketFactory", 
+    Address(InetSocketAddress(Ipv4Address("10.1.1.2"), port)));
+  onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]") );
+  onoff.SetAttribute("OffTime",	StringValue("ns3::ConstantRandomVariable[Constant=1.0]") );
   onoff.SetAttribute("DataRate", DataRateValue(5000000)); // = 5Mb/s
 
-  ApplicationContainer app1 = onoff.Install(csmaHostDevices.Get(0));
+  ApplicationContainer app1 = onoff.Install(nodes.Get(0));
   app1.Start(Seconds(1.0));
   app1.Stop(Seconds(10.0));
   
-  PacketSinkHelper sink("ns3::UdpSocketFactory", Address(InetSocketAddress(Ipv4Address::GetAny(), port)));
-  ApplicationContainer sinkApp1 = sink.Install(csmaHostDevices.Get(1));
+  PacketSinkHelper sink("ns3::UdpSocketFactory", 
+    Address(InetSocketAddress(Ipv4Address::GetAny(), port)));
+
+  ApplicationContainer sinkApp1 = sink.Install(nodes.Get(1));
   sinkApp1.Start(Seconds(1.0));
   sinkApp1.Get(0)->TraceConnect("Rx", "Flow1", MakeCallback(&RxTime));
 
@@ -107,15 +106,20 @@ main (int argc, char *argv[])
   onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=0.3]"));
   onoff.SetAttribute("OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0.7]"));
 
-  ApplicationContainer app2 = onoff.Install(csmaHostDevices.Get(3));
+  ApplicationContainer app2 = onoff.Install(nodes.Get(3));
   app2.Start(Seconds(3.0));
   app2.Stop(Seconds(13.0));
 
-  ApplicationContainer sinkApp2 = sink.Install(csmaHostDevices.Get(0));
+  ApplicationContainer sinkApp2 = sink.Install(nodes.Get(0));
   sinkApp2.Start(Seconds(3.0));
   sinkApp2.Get(0)->TraceConnect("Rx", "Flow2", MakeCallback(&Rxtime));
 
-  Simulator::Stop (Seconds (20));
+
+  // option : Enable Pcap tracing
+  csma.EnablePcapAll("week11", false);
+
+
+  Simulator::Stop (Seconds (15));
   Simulator::Run ();
   Simulator::Destroy ();
 
