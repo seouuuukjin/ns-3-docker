@@ -1,5 +1,5 @@
 # gnuplot
-    plot "flow1.dat" using 1:2 title 'Flow1' with linespoints, "flow2.dat" using 1:2 title 'Flow2' with linespoints
+    plot "week11-flow1.dat" using 1:2 title 'Flow1' with linespoints, "week11-flow2.dat" using 1:2 title 'Flow2' with linespoints, "week11-background-flow.dat" using 1:2 title 'Background Flow' with linespoints
 # waf
     ./waf --run scratch/week11/week11 > week11hw-log.dat
 # awk
