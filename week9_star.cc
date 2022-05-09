@@ -10,8 +10,8 @@
 
 using namespace ns3;
 
-// You can waf this with command <./waf --run scratch/week9/week9_star > week9-log.dat>
-NS_LOG_COMPONENT_DEFINE ("week9_star");
+// You can waf this with command <./waf --run scratch/week9/week9 > week9-log.dat>
+NS_LOG_COMPONENT_DEFINE ("week9");
 
 static void
 Rxtime (std::string context, Ptr<const Packet> p, const Address &a){
