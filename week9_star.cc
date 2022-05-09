@@ -10,8 +10,8 @@
 
 using namespace ns3;
 
-// You can waf this with command <./waf --run scratch/week11/week11 > week11-log.dat>
-NS_LOG_COMPONENT_DEFINE ("week11");
+// You can waf this with command <./waf --run scratch/week9/week9_star > week9-log.dat>
+NS_LOG_COMPONENT_DEFINE ("week9_star");
 
 static void
 Rxtime (std::string context, Ptr<const Packet> p, const Address &a){
@@ -126,7 +126,7 @@ main (int argc, char *argv[])
 
 
   // option : Enable Pcap tracing
-  csma.EnablePcapAll("week11", false);
+  csma.EnablePcapAll("week9_star", false);
 
   // Set up the routing tables
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
