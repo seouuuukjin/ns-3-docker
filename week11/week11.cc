@@ -23,25 +23,25 @@ Rxtime (std::string context, Ptr<const Packet> p, const Address &a){
         bytes1 += p->GetSize();
         // // NS_LOG_UNCOND : logging module that logs unconditionally
         // NS_LOG_UNCOND("1\t" << Simulator::Now().GetSeconds()
-        //      << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1));
+        //      << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 );
         std::cout << "1\t" << Simulator::Now().GetSeconds()
-             << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) << std::endl;
+             << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 << std::endl; // need to multiply 10 to result (due to condition "per 0.1s")
     }
     else if(context == "Flow2"){
       // printf("flow 22222 event\n");
         bytes2 += p->GetSize();
         // // NS_LOG_UNCOND("2\t" << Simulator::Now().GetSeconds()
-        //      << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-3));
+        //      << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-3) * 10 );
         std::cout << "2\t" << Simulator::Now().GetSeconds()
-             << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) << std::endl;
+             << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 << std::endl;
     }
     else if(context == "Background Flow"){
       // printf("flow background event\n");
         bytes_background += p->GetSize();
-        // // NS_LOG_UNCOND("2\t" << Simulator::Now().GetSeconds()
-        //      << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-3));
+        // // NS_LOG_UNCOND("0\t" << Simulator::Now().GetSeconds()
+        //      << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-3) * 10 );
         std::cout << "0\t" << Simulator::Now().GetSeconds()
-             << "\t" << bytes_background * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) << std::endl;
+             << "\t" << bytes_background * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 << std::endl;
     }
     // printf("RXtime called @@@@@\n");
 }
@@ -93,7 +93,7 @@ main (int argc, char *argv[])
   ipv4.SetBase ("10.1.1.0", "255.255.255.0");
   ipv4.Assign (csmaHostDevices);
 
-  ////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
   // Background flow : n2->n1
   // Set the mission source node (n2) will do
   uint16_t port = 9;
@@ -113,12 +113,12 @@ main (int argc, char *argv[])
   sinkApp_background.Start(Seconds(0.5));
   sinkApp_background.Get(0)->TraceConnect("Rx", "Background Flow", MakeCallback (&Rxtime));
   
-  ////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
   // Flow1 : n0 -> n1
   uint16_t port_flow1 = 111;
   OnOffHelper onoff_flow1("ns3::UdpSocketFactory", 
     Address(InetSocketAddress(Ipv4Address("10.1.1.2"), port_flow1)));
-//   onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(Ipv4Address("10.1.1.2"), port)));
+  // onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(Ipv4Address("10.1.1.2"), port)));
   onoff_flow1.SetAttribute("DataRate", DataRateValue(2500000));
   onoff_flow1.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]") );
   onoff_flow1.SetAttribute("OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0.0]") );
@@ -133,11 +133,11 @@ main (int argc, char *argv[])
   sinkApp_flow1.Start(Seconds(0.5));
   sinkApp_flow1.Get(0)->TraceConnect("Rx", "Flow1", MakeCallback (&Rxtime));
 
-  ////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
   // Flow2 : n3 -> n0
   OnOffHelper onoff_flow2("ns3::UdpSocketFactory", 
     Address(InetSocketAddress(Ipv4Address("10.1.1.1"), port)));
-//   onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(Ipv4Address("10.1.1.1"), port)));
+  // onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(Ipv4Address("10.1.1.1"), port)));
   onoff_flow2.SetAttribute("DataRate", DataRateValue(5000000));
   onoff_flow2.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1.0]") );
   onoff_flow2.SetAttribute("OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0.0]") );
@@ -152,9 +152,8 @@ main (int argc, char *argv[])
   sinkApp_flow2.Start(Seconds(5.0));
   sinkApp_flow2.Get(0)->TraceConnect("Rx", "Flow2", MakeCallback (&Rxtime));
 
-
   // All pair setting end
-  ////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
   
   // option : Enable Pcap tracing
   csma.EnablePcapAll("week11-hw", false);
