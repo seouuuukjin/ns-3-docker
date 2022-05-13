@@ -25,7 +25,7 @@ Rxtime (std::string context, Ptr<const Packet> p, const Address &a){
         // NS_LOG_UNCOND("1\t" << Simulator::Now().GetSeconds()
         //      << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 );
         std::cout << "1\t" << Simulator::Now().GetSeconds()
-             << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 << std::endl; // need to multiply 10 to result (due to condition "per 0.1s")
+             << "\t" << bytes1 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) / 10 << std::endl; // need to multiply 10 to result (due to condition "per 0.1s")
     }
     else if(context == "Flow2"){
       // printf("flow 22222 event\n");
@@ -33,15 +33,15 @@ Rxtime (std::string context, Ptr<const Packet> p, const Address &a){
         // // NS_LOG_UNCOND("2\t" << Simulator::Now().GetSeconds()
         //      << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-3) * 10 );
         std::cout << "2\t" << Simulator::Now().GetSeconds()
-             << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 << std::endl;
+             << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) / 10 << std::endl;
     }
     else if(context == "Background Flow"){
       // printf("flow background event\n");
         bytes_background += p->GetSize();
         // // NS_LOG_UNCOND("0\t" << Simulator::Now().GetSeconds()
-        //      << "\t" << bytes2 * 8 / 1000000 / (Simulator::Now().GetSeconds()-3) * 10 );
+        //      << "\t" << bytes_background * 8 / 1000000 / (Simulator::Now().GetSeconds()-3) / 10 );
         std::cout << "0\t" << Simulator::Now().GetSeconds()
-             << "\t" << bytes_background * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) * 10 << std::endl;
+             << "\t" << bytes_background * 8 / 1000000 / (Simulator::Now().GetSeconds()-1) / 10 << std::endl;
     }
     // printf("RXtime called @@@@@\n");
 }
